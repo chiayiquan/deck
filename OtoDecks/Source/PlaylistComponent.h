@@ -23,7 +23,8 @@ using namespace juce;
  */
 class PlaylistComponent : public juce::Component,
                           public juce::TableListBoxModel,
-                          public Button::Listener
+                          public Button::Listener,
+                          public TextEditor::Listener
 {
 public:
   PlaylistComponent(DeckGUI *_deckGUI1, DeckGUI *_deckGUI2);
@@ -57,6 +58,8 @@ public:
 
   String stringDuration(double duration);
 
+  void textEditorTextChanged(TextEditor &);
+
 private:
   TableListBox tableComponent;
   std::vector<Track> originalList;
@@ -67,6 +70,8 @@ private:
 
   DeckGUI *deckGUI1;
   DeckGUI *deckGUI2;
+
+  TextEditor searchBar;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlaylistComponent)
 };

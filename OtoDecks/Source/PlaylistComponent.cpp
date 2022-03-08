@@ -30,10 +30,13 @@ PlaylistComponent::PlaylistComponent(DeckGUI *_deckGUI1, DeckGUI *_deckGUI2) : d
   tableComponent.setModel(this);
 
   addAndMakeVisible(tableComponent);
-
   addAndMakeVisible(addToLibButton);
+  addAndMakeVisible(searchBar);
 
   addToLibButton.addListener(this);
+  searchBar.addListener(this);
+
+  searchBar.setTextToShowWhenEmpty("Search", Colours::white);
 }
 
 PlaylistComponent::~PlaylistComponent()
@@ -66,7 +69,8 @@ void PlaylistComponent::resized()
   // components that your component contains..
   int height = getHeight() / 8;
   addToLibButton.setBounds(0, 0, getWidth(), height);
-  tableComponent.setBounds(0, height, getWidth(), height * 7);
+  searchBar.setBounds(0, height, getWidth(), height);
+  tableComponent.setBounds(0, height * 2, getWidth(), height * 6);
 }
 
 int PlaylistComponent::getNumRows()
@@ -186,4 +190,26 @@ String PlaylistComponent::stringDuration(double duration)
   int second = roundedDuration % 60;
   String durationStr = std::to_string(minute) + " min " + std::to_string(second) + " second";
   return durationStr;
+};
+
+void PlaylistComponent::textEditorTextChanged(TextEditor &editor)
+{
+  String value = editor.getTextValue().toString();
+  if (value.length() > 0)
+  {
+    std::vector<Track> filteredResult;
+    for (const Track &track : originalList)
+    {
+      if (track.name.containsIgnoreCase(value))
+      {
+        filteredResult.push_back(track);
+      }
+    }
+    listToDisplay = filteredResult;
+  }
+  else
+  {
+    listToDisplay = originalList;
+  }
+  tableComponent.updateContent();
 };
