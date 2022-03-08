@@ -10,27 +10,30 @@
 
 #include <JuceHeader.h>
 #include "PlaylistComponent.h"
+#include <cmath>
 
 //==============================================================================
-PlaylistComponent::PlaylistComponent()
+PlaylistComponent::PlaylistComponent(DeckGUI *_deckGUI1, DeckGUI *_deckGUI2) : deckGUI1(_deckGUI1), deckGUI2(_deckGUI2)
 {
   // In your constructor, you should add any child components, and
   // initialise any special settings that your component needs.
-  trackTitles.push_back("Track 1");
-  trackTitles.push_back("Track 2");
-  trackTitles.push_back("Track 3");
-  trackTitles.push_back("Track 4");
-  trackTitles.push_back("Track 5");
-  trackTitles.push_back("Track 6");
+  tableComponent.getHeader()
+      .addColumn("Track Title", 1, 300);
+  tableComponent.getHeader()
+      .addColumn("Track Duration", 2, 100);
+  tableComponent.getHeader()
+      .addColumn("", 3, 200);
 
   tableComponent.getHeader()
-      .addColumn("Track Title", 1, 400);
-  tableComponent.getHeader()
-      .addColumn("", 2, 200);
+      .addColumn("", 4, 200);
 
   tableComponent.setModel(this);
 
   addAndMakeVisible(tableComponent);
+
+  addAndMakeVisible(addToLibButton);
+
+  addToLibButton.addListener(this);
 }
 
 PlaylistComponent::~PlaylistComponent()
@@ -61,12 +64,14 @@ void PlaylistComponent::resized()
 {
   // This method is where you should set the bounds of any child
   // components that your component contains..
-  tableComponent.setBounds(0, 0, getWidth(), getHeight());
+  int height = getHeight() / 8;
+  addToLibButton.setBounds(0, 0, getWidth(), height);
+  tableComponent.setBounds(0, height, getWidth(), height * 7);
 }
 
 int PlaylistComponent::getNumRows()
 {
-  return trackTitles.size();
+  return listToDisplay.size();
 };
 
 void PlaylistComponent::paintRowBackground(Graphics &g,
@@ -92,13 +97,27 @@ void PlaylistComponent::paintCell(Graphics &g,
                                   int height,
                                   bool rowIsSelected)
 {
-  g.drawText(trackTitles[rowNumber],
-             2,
-             0,
-             width - 4,
-             height,
-             Justification::centredLeft,
-             true);
+  if (columnId == 1)
+  {
+
+    g.drawText(listToDisplay[rowNumber].name,
+               2,
+               0,
+               width - 4,
+               height,
+               Justification::centredLeft,
+               true);
+  }
+  else if (columnId == 2)
+  {
+    g.drawText(stringDuration(listToDisplay[rowNumber].duration),
+               2,
+               0,
+               width - 4,
+               height,
+               Justification::centredLeft,
+               true);
+  }
 };
 
 Component *PlaylistComponent::refreshComponentForCell(int rowNumber,
@@ -106,11 +125,23 @@ Component *PlaylistComponent::refreshComponentForCell(int rowNumber,
                                                       bool isRowSelected,
                                                       Component *existingComponentToUpdate)
 {
-  if (columnId == 2)
+  if (columnId == 3)
   {
     if (existingComponentToUpdate == nullptr)
     {
-      TextButton *btn = new TextButton{"play"};
+      TextButton *btn = new TextButton{"deck 1"};
+      String id{std::to_string(rowNumber)};
+      btn->setComponentID(id);
+
+      btn->addListener(this);
+      existingComponentToUpdate = btn;
+    }
+  }
+  else if (columnId == 4)
+  {
+    if (existingComponentToUpdate == nullptr)
+    {
+      TextButton *btn = new TextButton{"deck 2"};
       String id{std::to_string(rowNumber)};
       btn->setComponentID(id);
 
@@ -123,6 +154,36 @@ Component *PlaylistComponent::refreshComponentForCell(int rowNumber,
 
 void PlaylistComponent::buttonClicked(Button *button)
 {
-  int id = std::stoi(button->getComponentID().toStdString());
-  std::cout << "PlaylistComponent::buttonClicked " << trackTitles[id] << std::endl;
+  if (button == &addToLibButton)
+  {
+    FileChooser chooser{"Select a file..."};
+    if (chooser.browseForFileToOpen())
+    {
+      URL chosenFileUrl = URL{chooser.getResult()};
+      String name = chosenFileUrl.getFileName();
+      double duration = deckGUI1->getDuration(chosenFileUrl);
+      String path = "file:///" + chosenFileUrl.getDomain() + "/" + chosenFileUrl.getSubPath();
+      originalList.push_back(Track{name, duration, path});
+      updateListToDisplay();
+    }
+  }
+  else
+  {
+    int id = std::stoi(button->getComponentID().toStdString());
+  }
+};
+
+void PlaylistComponent::updateListToDisplay()
+{
+  listToDisplay = originalList;
+  tableComponent.updateContent();
+};
+
+String PlaylistComponent::stringDuration(double duration)
+{
+  int roundedDuration = std::round(duration);
+  int minute = roundedDuration / 60;
+  int second = roundedDuration % 60;
+  String durationStr = std::to_string(minute) + " min " + std::to_string(second) + " second";
+  return durationStr;
 };

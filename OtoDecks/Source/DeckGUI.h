@@ -17,7 +17,7 @@
 using namespace juce;
 //==============================================================================
 /*
-*/
+ */
 class DeckGUI : public juce::Component,
                 public Button::Listener,
                 public Slider::Listener,
@@ -43,6 +43,8 @@ public:
 
   void timerCallback() override;
 
+  double getDuration(URL audioURL);
+
 private:
   TextButton playButton{"PLAY"};
   TextButton stopButton{"STOP"};
@@ -56,6 +58,5 @@ private:
 
   WaveformDisplay waveformDisplay;
 
-  std::unique_ptr<FileChooser> chooser;
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DeckGUI)
 };

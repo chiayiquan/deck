@@ -94,3 +94,17 @@ double DJAudioPlayer::getPositionRelative()
 {
   return transportSource.getCurrentPosition() / transportSource.getLengthInSeconds();
 }
+
+double DJAudioPlayer::getDuration(URL audioURL)
+{
+  AudioFormatReader *reader = formatManager.createReaderFor(audioURL.getLocalFile());
+
+  if (reader != nullptr)
+  {
+    double duration = reader->lengthInSamples / reader->sampleRate;
+    // delete the reader to fix leakage when closing the application
+    delete reader;
+    return duration;
+  }
+  return 0;
+};

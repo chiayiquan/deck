@@ -92,23 +92,12 @@ void DeckGUI::buttonClicked(Button *button)
   }
   if (button == &loadButton)
   {
-    chooser =
-        std::make_unique<juce::FileChooser>("Select a file...", juce::File{});
-    auto chooserFlags = juce::FileBrowserComponent::openMode |
-                        juce::FileBrowserComponent::canSelectFiles;
-
-    chooser->launchAsync(chooserFlags, [this](const FileChooser &fc)
-                         {
-                           if (fc.getResults().size() > 0)
-                           {
-                             auto file = fc.getURLResult();
-                             player->loadURL(file);
-                             return waveformDisplay.loadURL(file);
-                             // if (file != File{}) {
-                             //   return loadFile(file);
-                             // }
-                           }
-                         });
+    FileChooser chooser{"Select a file..."};
+    if (chooser.browseForFileToOpen())
+    {
+      player->loadURL(URL{chooser.getResult()});
+      waveformDisplay.loadURL(URL{chooser.getResult()});
+    }
   }
 };
 
@@ -144,4 +133,9 @@ void DeckGUI::filesDropped(const StringArray &files, int x, int y)
 void DeckGUI::timerCallback()
 {
   waveformDisplay.setPositionRelative(player->getPositionRelative());
+};
+
+double DeckGUI::getDuration(URL audioURL)
+{
+  return player->getDuration(audioURL);
 };

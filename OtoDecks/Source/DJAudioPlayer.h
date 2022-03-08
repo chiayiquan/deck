@@ -32,8 +32,11 @@ public:
   void start();
   void stop();
 
-  /** et the relative position of the playhead */
+  /** get the relative position of the playhead */
   double getPositionRelative();
+
+  /** get the duration of the track */
+  double getDuration(URL audioURL);
 
 private:
   AudioFormatManager &formatManager;
