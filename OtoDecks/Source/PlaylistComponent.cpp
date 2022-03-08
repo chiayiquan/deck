@@ -17,6 +17,13 @@ PlaylistComponent::PlaylistComponent(DeckGUI *_deckGUI1, DeckGUI *_deckGUI2) : d
 {
   // In your constructor, you should add any child components, and
   // initialise any special settings that your component needs.
+
+  // have to store the file path because read and write uses different working directory
+  // the working directory will be in the build folder
+  pathForStorage = File::getCurrentWorkingDirectory().getFullPathName() + "/data.csv";
+  originalList = FileHelper::readFromCSV(pathForStorage);
+  updateListToDisplay();
+
   tableComponent.getHeader()
       .addColumn("Track Title", 1, 300);
   tableComponent.getHeader()
@@ -173,7 +180,9 @@ void PlaylistComponent::buttonClicked(Button *button)
       String name = chosenFileUrl.getFileName();
       double duration = deckGUI1->getDuration(chosenFileUrl);
       String path = "file:///" + chosenFileUrl.getDomain() + "/" + chosenFileUrl.getSubPath();
-      originalList.push_back(Track{name, duration, path});
+      Track track{name, duration, path};
+      FileHelper::writeToCSV(pathForStorage, track);
+      originalList.push_back(track);
       updateListToDisplay();
     }
   }

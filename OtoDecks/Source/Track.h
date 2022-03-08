@@ -8,13 +8,15 @@
   ==============================================================================
 */
 
-#include <JuceHeader.h>
 #pragma once
+#include <JuceHeader.h>
 
 class Track
 {
 public:
   Track(String _name, double _duration, String _path);
+
+  static String trackToString(Track track);
 
   String name;
   double duration;
