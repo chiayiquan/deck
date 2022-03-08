@@ -45,6 +45,8 @@ public:
 
   double getDuration(URL audioURL);
 
+  void loadFileByUrl(String audioURL);
+
 private:
   TextButton playButton{"PLAY"};
   TextButton stopButton{"STOP"};

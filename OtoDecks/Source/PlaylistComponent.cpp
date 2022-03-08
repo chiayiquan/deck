@@ -129,6 +129,12 @@ Component *PlaylistComponent::refreshComponentForCell(int rowNumber,
                                                       bool isRowSelected,
                                                       Component *existingComponentToUpdate)
 {
+  if (existingComponentToUpdate != nullptr)
+  {
+    // if recycle component delete and reassign to nullptr
+    delete existingComponentToUpdate;
+    existingComponentToUpdate = nullptr;
+  }
   if (columnId == 3)
   {
     if (existingComponentToUpdate == nullptr)
@@ -174,6 +180,14 @@ void PlaylistComponent::buttonClicked(Button *button)
   else
   {
     int id = std::stoi(button->getComponentID().toStdString());
+    if (button->getButtonText() == "deck 1")
+    {
+      deckGUI1->loadFileByUrl(listToDisplay[id].path);
+    }
+    else if (button->getButtonText() == "deck 2")
+    {
+      deckGUI2->loadFileByUrl(listToDisplay[id].path);
+    }
   }
 };
 

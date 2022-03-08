@@ -139,3 +139,10 @@ double DeckGUI::getDuration(URL audioURL)
 {
   return player->getDuration(audioURL);
 };
+
+void DeckGUI::loadFileByUrl(String audioURL)
+{
+  URL url{audioURL};
+  player->loadURL(url);
+  waveformDisplay.loadURL(url);
+};
